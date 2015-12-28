@@ -28,8 +28,8 @@ abc <- function(goal, dim, pars)
 
   if(!("NP" %in% names(pars))) pars$NP <- 40
   if(!("FoodNumber" %in% names(pars))) pars$FoodNumber <- pars$NP/2
-  if(!("lb" %in% names(pars))) pars$lb <- -100000000000000000000
-  if(!("ub" %in% names(pars))) pars$ub <- +100000000000000000000
+  if(!("lb" %in% names(pars))) pars$lb <- -Inf
+  if(!("ub" %in% names(pars))) pars$ub <- +Inf
   if(!("limit" %in% names(pars))) pars$limit = 100
   if(!("maxCycle" %in% names(pars))) pars$maxCycle = 1000
   if(!("optbin" %in% names(pars))) pars$optbin=FALSE
@@ -37,7 +37,8 @@ abc <- function(goal, dim, pars)
 
   pars$lb <- rep(pars$lb, dim)
   pars$ub <- rep(pars$ub, dim)
-
+  pars$lb[is.infinite(pars$lb)] <- -(.Machine$double.xmax*1e-10)
+  pars$ub[is.infinite(pars$ub)] <- +(.Machine$double.xmax*1e-10)
   # Initial params
   Foods       <- matrix(double(pars$FoodNumber*dim), nrow=pars$FoodNumber)
   f           <- double(pars$FoodNumber)  #point - history wartosc f-ji celu dla danego rozwiazania
@@ -79,7 +80,7 @@ abc <- function(goal, dim, pars)
       }
     }
     # Increasing persistance
-    if (!change) persistance <<- persistance + 1
+    if (!change) p <<- p + 1
   }
 
   # Variables are initialized in the range [pars$lb,pars$ub]. If each parameter has
@@ -183,13 +184,14 @@ abc <- function(goal, dim, pars)
   # For example prob(i)=fitness(i)/sum(fitness)*/
   # or in a way used in the metot below prob(i)=a*fitness(i)/max(fitness)+b*/
   # probability values are calculated by using fitness values and normalized by dividing maximum fitness value*/
-  evaluateList <- function() {
+  evaluateList <- function(points,evaluation) {
     maxfit <- fitness[1]
     for (i in 1:pars$FoodNumber)
       if (fitness[i] > maxfit) maxfit <- fitness[i]
 
       prob <<- .9*(fitness/maxfit) + .1
-      #     prob[is.nan(prob)]  <<- .1
+      prob[is.nan(prob)]  <<- .1
+      return(points)
   }
 
   SendOnlookerBees <- function()
@@ -217,7 +219,6 @@ abc <- function(goal, dim, pars)
 
         solution <<- Foods[i,]
 
-        # v_{ij}=x_{ij}+\phi_{ij}*(x_{kj}-x_{ij}) */
         r <- runif(1)
 
         if (pars$optbin) solution[param2change] <<- r > .5
@@ -279,7 +280,7 @@ abc <- function(goal, dim, pars)
   initModel <- function(history){
     MemorizeBestSource()
     SendEmployedBees()
-    evaluateList()
+    evaluateList(NULL, NULL)
     return(GlobalParams)
   }
 
@@ -311,24 +312,21 @@ abc <- function(goal, dim, pars)
 
   aggregatedOperator<-function(history, oldModel)
   {
-
     selectedPoints<-selection(history, oldModel)
     newModel<-modelUpdate(selectedPoints, oldModel)
     newPoints<-variation(selectedPoints, newModel)
     return (list(newPoints=newPoints,newModel=newModel))
   }
 
-  persistance <- 0
+  p <- 0
   history <- initialize(Foods) #return initialized foods - points which bees will estimate
   model <- initModel(history)
 
   iter <- 0
-  while ((iter <- iter + 1) < pars$maxCycle)
+  while ((iter <- iter + 1) < pars$maxCycle && p <= pars$critical)
   {
     aa <- aggregatedOperator(history, model)
-    if (persistance > pars$critical) break     #opcjonalne - optymalizacja przy tluczeniu sie w tym samym miejscu
-
-    evaluateList()
+    aa$newPoints <- evaluateList(aa$newPoints, model)
     history <- historyPush(history, aa$newPoints)
     model <- aa$newModel
   }
