@@ -5,27 +5,33 @@
 \title{Implementation of Artificial Bee Colony(ABC) algorithm
 for the purposes of ALHE class on Warsaw University of Technology}
 \usage{
-abc(goal, dim, par, ..., NP = 40, FoodNumber = NP/2, lb = -Inf,
-  ub = +Inf, limit = 100, maxCycle = 1000, optbin = FALSE,
-  criter = 50)
+abc(goal, dim, pars)
 }
 \arguments{
 \item{goal}{f(x) f(x) - funkcja celu obliczana dla argumentu x}
 
 \item{dim}{wymiarowosc dla ktorej prowadzone beda obliczenia}
 
-\item{par}{# wektor z parametrami dla danej konkretnej funkcji}
+\item{pars}{obiekt z pozostalymi parametrami metody:
+- NP: ilosc pszczol,
+- FoodNumber: ilosc zrodl jedzenia
+- lb:  dolna granica zasiegu przeszukiwania - dla przyspieszenia
+- ub:  gorna granica parametrow - dla przyspieszenia
+- limit: zrodlo jedzenia, ktore nie moze byc ulepszone w tylu probach jest porzucane przez pszczoly
+- maxCycle: maksymalna ilosc cykli(iteracji) - "stop" kryterium zatrzymania
+- optbin:  TRUE jezeli chcemy optymalizowac binarnie [1,0]
+- critical: ograniczenie na niezmiennosc rozwiazania - dla przyspieszenia}
 }
 \value{
 res - wynik działania metody, przy czym:
- - res$x to wektor odpowiadający najlepszemu rozwiązaniu,
- -res$y to wartość f. celu dla tego wektora
+    - res$x to wektor odpowiadający najlepszemu rozwiązaniu,
+    - res$y to wartość f. celu dla tego wektora
 }
 \description{
 Finds a local minimums of the function(aka "the best food sources")
 }
 \examples{
-abc(function(x) {100 * (x[2] - x[1]^2)^2 + (1 - x[1])^2}, 2, c(1,1), lb=-2.028, ub=2.028, criter=200)
+abc(function(x) {100 * (x[2] - x[1]^2)^2 + (1 - x[1])^2}, 2, c(1,1), lb=-2.028, ub=2.028, critical=200)
 
 }
 
