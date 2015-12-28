@@ -1,10 +1,11 @@
 Package: alhe
 Type: Package
-Title: What the Package Does (Title Case)
+Title: Artificial Bee colony algorithm using metaheuristic pattern.
 Version: 0.1
 Date: 2015-12-27
-Author: Who wrote it
-Maintainer: Who to complain to <yourfault@somewhere.net>
+Author: Volodymyr Ostruk
+Maintainer: Volodymyr Ostruk <ostruk@outlook.com>
 Description: More about what it does (maybe more than one line)
-License: What license is it under?
+License: GPL (>= 2)
 LazyData: TRUE
+RoxygenNote: 5.0.1
