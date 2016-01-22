@@ -1,11 +1,15 @@
-#' Implementation of Artificial Bee Colony(ABC) algorithm
+#' Package: alhe
+#'
+#' @title Implementation of Artificial Bee Colony(ABC) algorithm
 #' for the purposes of ALHE class on Warsaw University of Technology
-#'
+#' @author Volodymyr Ostruk \email{ostruk@outlook.com}
 #' Finds a local minimums of the function(aka "the best food sources")
+#' @references \url{https://en.wikipedia.org/wiki/Artificial_bee_colony_algorithm}
+#' @references  Dervis KARABOGA; AN IDEA BASED ON HONEY BEE SWARM FOR NUMERICAL OPTIMIZATION; TECHNICAL REPORT-TR06, OCTOBER, 2005
 #'
-#' @param goal f(x) f(x) - funkcja celu obliczana dla argumentu x
-#' @param dim wymiarowosc dla ktorej prowadzone beda obliczenia
-#' @param pars obiekt z pozostalymi parametrami metody:
+#' @param goal, f(x) - funkcja celu obliczana dla argumentu x
+#' @param dim, wymiarowosc dla ktorej prowadzone beda obliczenia
+#' @param pars, obiekt z pozostalymi parametrami metody:
 #'          - NP: ilosc pszczol,
 #'          - FoodNumber: ilosc zrodl jedzenia
 #'          - lb:  dolna granica zasiegu przeszukiwania - dla przyspieszenia
@@ -20,7 +24,7 @@
 #'     - res$y to wartość f. celu dla tego wektora
 #'
 #' @examples
-#' abc(function(x) {100 * (x[2] - x[1]^2)^2 + (1 - x[1])^2}, 2, c(1,1), lb=-2.028, ub=2.028, critical=200)
+#' abc(function(x) sum(x^2), 5, list(NP=40,lb=-100, ub=100, critical=100))
 #'
 #' @export
 abc <- function(goal, dim, pars)

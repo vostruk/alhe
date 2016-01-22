@@ -1,11 +1,11 @@
 Package: alhe
 Type: Package
-Title: Artificial Bee colony algorithm using metaheuristic pattern.
+Title: Artificial Bee colony algorithm using metaheuristic pattern
 Version: 0.1
 Date: 2015-12-27
 Author: Volodymyr Ostruk
 Maintainer: Volodymyr Ostruk <ostruk@outlook.com>
-Description: More about what it does (maybe more than one line)
+Description: Algorithm implements ABC algorithm for searching a global minimum of the function.
 License: GPL (>= 2)
 LazyData: TRUE
 RoxygenNote: 5.0.1

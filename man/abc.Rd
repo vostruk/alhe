@@ -8,11 +8,11 @@ for the purposes of ALHE class on Warsaw University of Technology}
 abc(goal, dim, pars)
 }
 \arguments{
-\item{goal}{f(x) f(x) - funkcja celu obliczana dla argumentu x}
+\item{goal, }{f(x) - funkcja celu obliczana dla argumentu x}
 
-\item{dim}{wymiarowosc dla ktorej prowadzone beda obliczenia}
+\item{dim, }{wymiarowosc dla ktorej prowadzone beda obliczenia}
 
-\item{pars}{obiekt z pozostalymi parametrami metody:
+\item{pars, }{obiekt z pozostalymi parametrami metody:
 - NP: ilosc pszczol,
 - FoodNumber: ilosc zrodl jedzenia
 - lb:  dolna granica zasiegu przeszukiwania - dla przyspieszenia
@@ -23,15 +23,24 @@ abc(goal, dim, pars)
 - critical: ograniczenie na niezmiennosc rozwiazania - dla przyspieszenia}
 }
 \value{
-res - wynik działania metody, przy czym:
-    - res$x to wektor odpowiadający najlepszemu rozwiązaniu,
-    - res$y to wartość f. celu dla tego wektora
+res - wynik dzia<U+D762>ania metody, przy czym:
+    - res$x to wektor odpowiadaj<U+D6F3>cy najlepszemu rozwi<U+D6F3>zaniu,
+    - res$y to warto<U+D784><U+D6F6> f. celu dla tego wektora
 }
 \description{
-Finds a local minimums of the function(aka "the best food sources")
+Package: alhe
 }
 \examples{
-abc(function(x) {100 * (x[2] - x[1]^2)^2 + (1 - x[1])^2}, 2, c(1,1), lb=-2.028, ub=2.028, critical=200)
+abc(function(x) sum(x^2), 5, list(NP=40,lb=-100, ub=100, critical=100))
 
+}
+\author{
+Volodymyr Ostruk \email{ostruk@outlook.com}
+Finds a local minimums of the function(aka "the best food sources")
+}
+\references{
+\url{https://en.wikipedia.org/wiki/Artificial_bee_colony_algorithm}
+
+Dervis KARABOGA; AN IDEA BASED ON HONEY BEE SWARM FOR NUMERICAL OPTIMIZATION; TECHNICAL REPORT-TR06, OCTOBER, 2005
 }
 
