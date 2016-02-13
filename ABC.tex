@@ -1,0 +1,475 @@
+\documentclass{article}\usepackage[]{graphicx}\usepackage[]{color}
+%% maxwidth is the original width if it is less than linewidth
+%% otherwise use linewidth (to make sure the graphics do not exceed the margin)
+\makeatletter
+\def\maxwidth{ %
+  \ifdim\Gin@nat@width>\linewidth
+    \linewidth
+  \else
+    \Gin@nat@width
+  \fi
+}
+\makeatother
+
+\definecolor{fgcolor}{rgb}{0.345, 0.345, 0.345}
+\newcommand{\hlnum}[1]{\textcolor[rgb]{0.686,0.059,0.569}{#1}}%
+\newcommand{\hlstr}[1]{\textcolor[rgb]{0.192,0.494,0.8}{#1}}%
+\newcommand{\hlcom}[1]{\textcolor[rgb]{0.678,0.584,0.686}{\textit{#1}}}%
+\newcommand{\hlopt}[1]{\textcolor[rgb]{0,0,0}{#1}}%
+\newcommand{\hlstd}[1]{\textcolor[rgb]{0.345,0.345,0.345}{#1}}%
+\newcommand{\hlkwa}[1]{\textcolor[rgb]{0.161,0.373,0.58}{\textbf{#1}}}%
+\newcommand{\hlkwb}[1]{\textcolor[rgb]{0.69,0.353,0.396}{#1}}%
+\newcommand{\hlkwc}[1]{\textcolor[rgb]{0.333,0.667,0.333}{#1}}%
+\newcommand{\hlkwd}[1]{\textcolor[rgb]{0.737,0.353,0.396}{\textbf{#1}}}%
+
+\usepackage{framed}
+\makeatletter
+\newenvironment{kframe}{%
+ \def\at@end@of@kframe{}%
+ \ifinner\ifhmode%
+  \def\at@end@of@kframe{\end{minipage}}%
+  \begin{minipage}{\columnwidth}%
+ \fi\fi%
+ \def\FrameCommand##1{\hskip\@totalleftmargin \hskip-\fboxsep
+ \colorbox{shadecolor}{##1}\hskip-\fboxsep
+     % There is no \\@totalrightmargin, so:
+     \hskip-\linewidth \hskip-\@totalleftmargin \hskip\columnwidth}%
+ \MakeFramed {\advance\hsize-\width
+   \@totalleftmargin\z@ \linewidth\hsize
+   \@setminipage}}%
+ {\par\unskip\endMakeFramed%
+ \at@end@of@kframe}
+\makeatother
+
+\definecolor{shadecolor}{rgb}{.97, .97, .97}
+\definecolor{messagecolor}{rgb}{0, 0, 0}
+\definecolor{warningcolor}{rgb}{1, 0, 1}
+\definecolor{errorcolor}{rgb}{1, 0, 0}
+\newenvironment{knitrout}{}{} % an empty environment to be redefined in TeX
+
+\usepackage{alltt}
+\usepackage[sc]{mathpazo}
+\renewcommand{\sfdefault}{lmss}
+\renewcommand{\ttdefault}{lmtt}
+\usepackage[T1]{fontenc}
+\usepackage{geometry}
+\geometry{verbose,tmargin=2.5cm,bmargin=2.5cm,lmargin=2.5cm,rmargin=2.5cm}
+\setcounter{secnumdepth}{2}
+\setcounter{tocdepth}{2}
+\usepackage[unicode=true,pdfusetitle,
+ bookmarks=true,bookmarksnumbered=true,bookmarksopen=true,bookmarksopenlevel=2,
+ breaklinks=false,pdfborder={0 0 1},backref=false,colorlinks=false]
+ {hyperref}
+\hypersetup{
+ pdfstartview={XYZ null null 1}}
+
+\makeatletter
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% User specified LaTeX commands.
+\renewcommand{\textfraction}{0.05}
+\renewcommand{\topfraction}{0.8}
+\renewcommand{\bottomfraction}{0.8}
+\renewcommand{\floatpagefraction}{0.75}
+
+\makeatother
+\IfFileExists{upquote.sty}{\usepackage{upquote}}{}
+\begin{document}
+
+
+
+\title{}
+
+
+
+\maketitle
+The results below are generated from an R script.
+
+\begin{knitrout}
+\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlcom{#' Package: alhe}
+\hlcom{#'}
+\hlcom{#' @title Implementation of Artificial Bee Colony(ABC) algorithm}
+\hlcom{#' for the purposes of ALHE class on Warsaw University of Technology}
+\hlcom{#' @author Volodymyr Ostruk \textbackslash{}email\{ostruk@outlook.com\}}
+\hlcom{#' Finds a local minimums of the function(aka "the best food sources")}
+\hlcom{#' @references \textbackslash{}url\{https://en.wikipedia.org/wiki/Artificial_bee_colony_algorithm\}}
+\hlcom{#' @references  Dervis KARABOGA; AN IDEA BASED ON HONEY BEE SWARM FOR NUMERICAL OPTIMIZATION; TECHNICAL REPORT-TR06, OCTOBER, 2005}
+\hlcom{#'}
+\hlcom{#' @param goal, f(x) - funkcja celu obliczana dla argumentu x}
+\hlcom{#' @param dim, wymiarowosc dla ktorej prowadzone beda obliczenia}
+\hlcom{#' @param pars, obiekt z pozostalymi parametrami metody:}
+\hlcom{#'          - NP: ilosc pszczol,}
+\hlcom{#'          - FoodNumber: ilosc zrodl jedzenia}
+\hlcom{#'          - lb:  dolna granica zasiegu przeszukiwania - dla przyspieszenia}
+\hlcom{#'          - ub:  gorna granica parametrow - dla przyspieszenia}
+\hlcom{#'          - limit: zrodlo jedzenia, ktore nie moze byc ulepszone w tylu probach jest porzucane przez pszczoly}
+\hlcom{#'          - maxCycle: maksymalna ilosc cykli(iteracji) - "stop" kryterium zatrzymania}
+\hlcom{#'          - optbin:  TRUE jezeli chcemy optymalizowac binarnie [1,0]}
+\hlcom{#'          - critical: ograniczenie na niezmiennosc rozwiazania - dla przyspieszenia}
+\hlcom{#'}
+\hlcom{#' @return res - wynik działania metody, przy czym:}
+\hlcom{#'     - res$x to wektor odpowiadający najlepszemu rozwiązaniu,}
+\hlcom{#'     - res$y to wartość f. celu dla tego wektora}
+\hlcom{#'}
+\hlcom{#' @examples}
+\hlcom{#' abc(function(x) sum(x^2), 5, list(NP=40,lb=-100, ub=100, critical=100))}
+\hlcom{#'}
+\hlcom{#' @export}
+\hlstd{abc} \hlkwb{<-} \hlkwa{function}\hlstd{(}\hlkwc{goal}\hlstd{,} \hlkwc{dim}\hlstd{,} \hlkwc{pars}\hlstd{)}
+\hlstd{\{}
+
+  \hlkwa{if}\hlstd{(}\hlopt{!}\hlstd{(}\hlstr{"NP"} \hlopt{%in%} \hlkwd{names}\hlstd{(pars))) pars}\hlopt{$}\hlstd{NP} \hlkwb{<-} \hlnum{40}
+  \hlkwa{if}\hlstd{(}\hlopt{!}\hlstd{(}\hlstr{"FoodNumber"} \hlopt{%in%} \hlkwd{names}\hlstd{(pars))) pars}\hlopt{$}\hlstd{FoodNumber} \hlkwb{<-} \hlstd{pars}\hlopt{$}\hlstd{NP}\hlopt{/}\hlnum{2}
+  \hlkwa{if}\hlstd{(}\hlopt{!}\hlstd{(}\hlstr{"lb"} \hlopt{%in%} \hlkwd{names}\hlstd{(pars))) pars}\hlopt{$}\hlstd{lb} \hlkwb{<-} \hlopt{-}\hlnum{Inf}
+  \hlkwa{if}\hlstd{(}\hlopt{!}\hlstd{(}\hlstr{"ub"} \hlopt{%in%} \hlkwd{names}\hlstd{(pars))) pars}\hlopt{$}\hlstd{ub} \hlkwb{<-} \hlopt{+}\hlnum{Inf}
+  \hlkwa{if}\hlstd{(}\hlopt{!}\hlstd{(}\hlstr{"limit"} \hlopt{%in%} \hlkwd{names}\hlstd{(pars))) pars}\hlopt{$}\hlstd{limit} \hlkwb{=} \hlnum{100}
+  \hlkwa{if}\hlstd{(}\hlopt{!}\hlstd{(}\hlstr{"maxCycle"} \hlopt{%in%} \hlkwd{names}\hlstd{(pars))) pars}\hlopt{$}\hlstd{maxCycle} \hlkwb{=} \hlnum{1000}
+  \hlkwa{if}\hlstd{(}\hlopt{!}\hlstd{(}\hlstr{"optbin"} \hlopt{%in%} \hlkwd{names}\hlstd{(pars))) pars}\hlopt{$}\hlstd{optbin}\hlkwb{=}\hlnum{FALSE}
+  \hlkwa{if}\hlstd{(}\hlopt{!}\hlstd{(}\hlstr{"critical"} \hlopt{%in%} \hlkwd{names}\hlstd{(pars))) pars}\hlopt{$}\hlstd{critical}\hlkwb{=}\hlnum{50}
+
+  \hlstd{pars}\hlopt{$}\hlstd{lb} \hlkwb{<-} \hlkwd{rep}\hlstd{(pars}\hlopt{$}\hlstd{lb, dim)}
+  \hlstd{pars}\hlopt{$}\hlstd{ub} \hlkwb{<-} \hlkwd{rep}\hlstd{(pars}\hlopt{$}\hlstd{ub, dim)}
+  \hlstd{pars}\hlopt{$}\hlstd{lb[}\hlkwd{is.infinite}\hlstd{(pars}\hlopt{$}\hlstd{lb)]} \hlkwb{<-} \hlopt{-}\hlstd{(.Machine}\hlopt{$}\hlstd{double.xmax}\hlopt{*}\hlnum{1e-10}\hlstd{)}
+  \hlstd{pars}\hlopt{$}\hlstd{ub[}\hlkwd{is.infinite}\hlstd{(pars}\hlopt{$}\hlstd{ub)]} \hlkwb{<-} \hlopt{+}\hlstd{(.Machine}\hlopt{$}\hlstd{double.xmax}\hlopt{*}\hlnum{1e-10}\hlstd{)}
+  \hlcom{# Initial params}
+  \hlstd{Foods}       \hlkwb{<-} \hlkwd{matrix}\hlstd{(}\hlkwd{double}\hlstd{(pars}\hlopt{$}\hlstd{FoodNumber}\hlopt{*}\hlstd{dim),} \hlkwc{nrow}\hlstd{=pars}\hlopt{$}\hlstd{FoodNumber)}
+  \hlstd{f}           \hlkwb{<-} \hlkwd{double}\hlstd{(pars}\hlopt{$}\hlstd{FoodNumber)}  \hlcom{#point - history wartosc f-ji celu dla danego rozwiazania}
+  \hlstd{fitness}     \hlkwb{<-} \hlkwd{double}\hlstd{(pars}\hlopt{$}\hlstd{FoodNumber)}  \hlcom{#point - history quality of the point -}
+  \hlstd{trial}       \hlkwb{<-} \hlkwd{double}\hlstd{(pars}\hlopt{$}\hlstd{FoodNumber)}  \hlcom{#point - history}
+  \hlstd{prob}        \hlkwb{<-} \hlkwd{double}\hlstd{(pars}\hlopt{$}\hlstd{FoodNumber)}  \hlcom{#point - history}
+  \hlstd{solution}    \hlkwb{<-} \hlkwd{double}\hlstd{(dim)}  \hlcom{#model}
+  \hlstd{ObjValSol}   \hlkwb{<-} \hlkwd{double}\hlstd{(}\hlnum{1}\hlstd{)}
+  \hlstd{FitnessSol}  \hlkwb{<-} \hlkwd{double}\hlstd{(}\hlnum{1}\hlstd{)}
+  \hlstd{neighbour}   \hlkwb{<-} \hlkwd{integer}\hlstd{(}\hlnum{1}\hlstd{)}
+  \hlstd{param2change}\hlkwb{<-} \hlkwd{integer}\hlstd{(}\hlnum{1}\hlstd{)}
+  \hlstd{GlobalMin}   \hlkwb{<-} \hlkwd{double}\hlstd{(}\hlnum{1}\hlstd{)}      \hlcom{#model}
+  \hlstd{GlobalParams}\hlkwb{<-} \hlkwd{double}\hlstd{(dim)}    \hlcom{#model}
+  \hlcom{#GlobalMins  <- double(runtime)}
+  \hlstd{r}           \hlkwb{<-} \hlkwd{integer}\hlstd{(}\hlnum{1}\hlstd{)}
+
+  \hlcom{# Fun}
+ \hlcom{# fun <- function(par) goal(par, ...)}
+
+  \hlcom{# Fitness function - calculates quality}
+  \hlstd{evaluation} \hlkwb{<-} \hlkwa{function}\hlstd{(}\hlkwc{f_wart}\hlstd{)}
+  \hlstd{\{}
+    \hlkwa{if} \hlstd{(f_wart} \hlopt{>=} \hlnum{0}\hlstd{)} \hlkwd{return}\hlstd{(}\hlnum{1}\hlopt{/}\hlstd{(f_wart} \hlopt{+} \hlnum{1}\hlstd{))}
+    \hlkwa{else} \hlkwd{return}\hlstd{(}\hlnum{1} \hlopt{+} \hlkwd{abs}\hlstd{(f_wart))}
+  \hlstd{\}}
+  \hlcom{# evaluation(f[1])}
+
+  \hlcom{# The best food source is memorized}
+  \hlstd{MemorizeBestSource} \hlkwb{<-} \hlkwa{function}\hlstd{()}
+  \hlstd{\{}
+    \hlstd{change} \hlkwb{<-} \hlnum{0}
+    \hlkwa{for}\hlstd{(i} \hlkwa{in} \hlkwd{seq}\hlstd{(}\hlnum{1}\hlstd{,pars}\hlopt{$}\hlstd{FoodNumber)) \{}
+      \hlkwa{if} \hlstd{(f[i]} \hlopt{<} \hlstd{GlobalMin) \{}
+        \hlstd{change} \hlkwb{<-} \hlstd{change} \hlopt{+} \hlnum{1}
+        \hlstd{GlobalMin} \hlkwb{<<-} \hlstd{f[i]}
+
+        \hlcom{# Replacing new group of parameters}
+        \hlstd{GlobalParams} \hlkwb{<<-} \hlstd{Foods[i,]}
+      \hlstd{\}}
+    \hlstd{\}}
+    \hlcom{# Increasing persistance}
+    \hlkwa{if} \hlstd{(}\hlopt{!}\hlstd{change) p} \hlkwb{<<-} \hlstd{p} \hlopt{+} \hlnum{1}
+  \hlstd{\}}
+
+  \hlcom{# Variables are initialized in the range [pars$lb,pars$ub]. If each parameter has}
+  \hlcom{# different range, use arrays pars$lb[j], pars$ub[j] instead of pars$lb and pars$ub}
+  \hlcom{# Counters of food sources are also initialized in this function}
+
+  \hlstd{init} \hlkwb{<-} \hlkwa{function}\hlstd{(}\hlkwc{index}\hlstd{,} \hlkwc{firstinit}\hlstd{=}\hlnum{FALSE}\hlstd{,} \hlkwc{...}\hlstd{) \{}
+    \hlkwa{if} \hlstd{(pars}\hlopt{$}\hlstd{optbin) Foods[index,]} \hlkwb{<<-} \hlkwd{runif}\hlstd{(dim)} \hlopt{>} \hlnum{.5}
+    \hlkwa{else} \hlstd{\{}
+      \hlkwa{if} \hlstd{(}\hlopt{!}\hlstd{firstinit) \{}
+        \hlstd{Foods[index,]} \hlkwb{<<-} \hlkwd{sapply}\hlstd{(}\hlnum{1}\hlopt{:}\hlstd{dim,} \hlkwa{function}\hlstd{(}\hlkwc{k}\hlstd{)} \hlkwd{runif}\hlstd{(}\hlnum{1}\hlstd{,pars}\hlopt{$}\hlstd{lb[k],pars}\hlopt{$}\hlstd{ub[k]) )} \hlcom{#uniform distr rand deriv}
+      \hlstd{\}}
+      \hlkwa{else} \hlstd{\{}
+        \hlcom{# For the first initialization we set the bees at}
+        \hlcom{# specific places equaly distributed through the}
+        \hlcom{# bounds.}
+        \hlstd{Foods[index,]} \hlkwb{<<-}
+          \hlkwd{sapply}\hlstd{(}\hlnum{1}\hlopt{:}\hlstd{dim,} \hlkwa{function}\hlstd{(}\hlkwc{k}\hlstd{) \{}
+            \hlkwd{seq}\hlstd{(pars}\hlopt{$}\hlstd{lb[k],pars}\hlopt{$}\hlstd{ub[k],}\hlkwc{length.out}\hlstd{=pars}\hlopt{$}\hlstd{FoodNumber)[index]}
+          \hlstd{\}}
+          \hlstd{)}
+      \hlstd{\}}
+    \hlstd{\}}
+
+    \hlstd{solution} \hlkwb{<<-} \hlstd{Foods[index,]}
+
+    \hlstd{f[index]} \hlkwb{<<-} \hlkwd{goal}\hlstd{(solution)}
+
+    \hlstd{fitness[index]} \hlkwb{<<-} \hlkwd{evaluation}\hlstd{(f[index])}
+    \hlstd{trial[index]} \hlkwb{<<-} \hlnum{0}
+
+  \hlstd{\}}
+  \hlcom{# init(2)}
+
+  \hlcom{# All food sources are initialized}
+  \hlstd{initialize} \hlkwb{<-} \hlkwa{function}\hlstd{(}\hlkwc{Foods}\hlstd{) \{}
+    \hlkwd{sapply}\hlstd{(}\hlnum{1}\hlopt{:}\hlstd{pars}\hlopt{$}\hlstd{FoodNumber, init,} \hlkwc{firstinit}\hlstd{=}\hlnum{TRUE}\hlstd{)}
+
+    \hlstd{GlobalMin} \hlkwb{<<-} \hlstd{f[}\hlnum{1}\hlstd{]}
+    \hlstd{GlobalParams} \hlkwb{<<-} \hlstd{Foods[}\hlnum{1}\hlstd{,]}
+    \hlkwd{return} \hlstd{(}\hlkwd{list}\hlstd{(Foods, fitness, trial, prob))}
+  \hlstd{\}}
+
+  \hlcom{# initial()}
+
+
+  \hlstd{SendEmployedBees} \hlkwb{<-} \hlkwa{function}\hlstd{() \{}
+    \hlkwa{for} \hlstd{(i} \hlkwa{in} \hlnum{1}\hlopt{:}\hlstd{pars}\hlopt{$}\hlstd{FoodNumber) \{}
+      \hlstd{r} \hlkwb{<-} \hlkwd{runif}\hlstd{(}\hlnum{1}\hlstd{)}
+      \hlcom{# The parameter to be changed is determined randomly}
+      \hlstd{param2change} \hlkwb{<-} \hlkwd{floor}\hlstd{(r}\hlopt{*}\hlstd{dim)} \hlopt{+} \hlnum{1}
+
+      \hlcom{# A randomly chosen solution is used in producing a mutant solution of the solution i}
+      \hlstd{neighbour} \hlkwb{<-} \hlkwd{floor}\hlstd{(r}\hlopt{*}\hlstd{pars}\hlopt{$}\hlstd{FoodNumber)} \hlopt{+} \hlnum{1}
+
+      \hlcom{# Randomly selected solution must be different from the solution i}
+      \hlkwa{while}\hlstd{(neighbour}\hlopt{==}\hlstd{i)}
+        \hlstd{neighbour} \hlkwb{<-} \hlkwd{floor}\hlstd{(}\hlkwd{runif}\hlstd{(}\hlnum{1}\hlstd{)}\hlopt{*}\hlstd{pars}\hlopt{$}\hlstd{FoodNumber)} \hlopt{+} \hlnum{1}
+
+      \hlstd{solution} \hlkwb{<<-} \hlstd{Foods[i,]}
+
+      \hlcom{# v_\{ij\}=x_\{ij\}+\textbackslash{}phi_\{ij\}*(x_\{kj\}-x_\{ij\})}
+      \hlstd{r} \hlkwb{<-} \hlkwd{runif}\hlstd{(}\hlnum{1}\hlstd{)}
+
+      \hlkwa{if} \hlstd{(pars}\hlopt{$}\hlstd{optbin) solution[param2change]} \hlkwb{<<-} \hlstd{r} \hlopt{>} \hlnum{0.5}
+      \hlkwa{else} \hlstd{\{}
+        \hlstd{solution[param2change]} \hlkwb{<<-}
+          \hlstd{Foods[i,param2change]}\hlopt{+}
+          \hlstd{(Foods[i,param2change]}\hlopt{-}\hlstd{Foods[neighbour,param2change])}\hlopt{*}\hlstd{(r}\hlopt{-}\hlnum{0.5}\hlstd{)}\hlopt{*}\hlnum{2}
+
+        \hlcom{# if generated parameter value is out of boundaries, it is shifted onto the boundaries}
+        \hlkwa{if} \hlstd{(solution[param2change]}\hlopt{<}\hlstd{pars}\hlopt{$}\hlstd{lb[param2change])}
+          \hlstd{solution[param2change]}\hlkwb{<<-}\hlstd{pars}\hlopt{$}\hlstd{lb[param2change]}
+
+        \hlkwa{if} \hlstd{(solution[param2change]}\hlopt{>}\hlstd{pars}\hlopt{$}\hlstd{ub[param2change])}
+          \hlstd{solution[param2change]}\hlkwb{<<-}\hlstd{pars}\hlopt{$}\hlstd{ub[param2change]}
+      \hlstd{\}}
+
+      \hlstd{ObjValSol} \hlkwb{<<-} \hlkwd{goal}\hlstd{(solution)}
+      \hlstd{FitnessSol} \hlkwb{<<-} \hlkwd{evaluation}\hlstd{(ObjValSol)}
+
+      \hlcom{# a greedy selection is applied between the current solution i and its mutant*/}
+      \hlkwa{if} \hlstd{(FitnessSol}\hlopt{>}\hlstd{fitness[i]) \{}
+        \hlcom{# If the mutant solution is better than the current solution i, replace the solution with the mutant and reset the trial counter of solution i*/}
+        \hlstd{trial[i]} \hlkwb{<<-} \hlnum{0}\hlstd{;}
+        \hlcom{#for(j in 1:dim) Foods[i,j] <<- solution[j]}
+        \hlstd{Foods[i,]} \hlkwb{<<-} \hlstd{solution}
+        \hlstd{f[i]}\hlkwb{<<-} \hlstd{ObjValSol}
+        \hlstd{fitness[i]}\hlkwb{<<-}\hlstd{FitnessSol}
+      \hlstd{\}}
+      \hlkwa{else} \hlstd{\{}
+        \hlcom{# the solution i can not be improved, increase its trial counter*/}
+        \hlstd{trial[i]} \hlkwb{<<-} \hlstd{trial[i]}\hlopt{+}\hlnum{1}
+      \hlstd{\}}
+    \hlstd{\}}
+  \hlstd{\}}
+
+
+  \hlcom{# A food source is chosen with the probability which is proportioal to its quality*/}
+  \hlcom{# Different schemes can be used to calculate the probability values*/}
+  \hlcom{# For example prob(i)=fitness(i)/sum(fitness)*/}
+  \hlcom{# or in a way used in the metot below prob(i)=a*fitness(i)/max(fitness)+b*/}
+  \hlcom{# probability values are calculated by using fitness values and normalized by dividing maximum fitness value*/}
+  \hlstd{evaluateList} \hlkwb{<-} \hlkwa{function}\hlstd{(}\hlkwc{points}\hlstd{,}\hlkwc{evaluation}\hlstd{) \{}
+    \hlstd{maxfit} \hlkwb{<-} \hlstd{fitness[}\hlnum{1}\hlstd{]}
+    \hlkwa{for} \hlstd{(i} \hlkwa{in} \hlnum{1}\hlopt{:}\hlstd{pars}\hlopt{$}\hlstd{FoodNumber)}
+      \hlkwa{if} \hlstd{(fitness[i]} \hlopt{>} \hlstd{maxfit) maxfit} \hlkwb{<-} \hlstd{fitness[i]}
+
+      \hlstd{prob} \hlkwb{<<-} \hlnum{.9}\hlopt{*}\hlstd{(fitness}\hlopt{/}\hlstd{maxfit)} \hlopt{+} \hlnum{.1}
+      \hlstd{prob[}\hlkwd{is.nan}\hlstd{(prob)]}  \hlkwb{<<-} \hlnum{.1}
+      \hlkwd{return}\hlstd{(points)}
+  \hlstd{\}}
+
+  \hlstd{SendOnlookerBees} \hlkwb{<-} \hlkwa{function}\hlstd{()}
+  \hlstd{\{}
+    \hlcom{# Onlooker Bee phase}
+    \hlstd{i} \hlkwb{<-} \hlnum{1}
+    \hlstd{t} \hlkwb{<-} \hlnum{0}
+    \hlkwa{while} \hlstd{(t} \hlopt{<} \hlstd{pars}\hlopt{$}\hlstd{FoodNumber)}
+    \hlstd{\{}
+      \hlstd{r} \hlkwb{<-} \hlkwd{runif}\hlstd{(}\hlnum{1}\hlstd{)}
+      \hlcom{# choose a food source depending on its probability to be chosen}
+      \hlkwa{if} \hlstd{(r} \hlopt{<} \hlstd{prob[i]) \{}
+        \hlstd{t} \hlkwb{<-} \hlstd{t} \hlopt{+} \hlnum{1}
+        \hlstd{r} \hlkwb{<-} \hlkwd{runif}\hlstd{(}\hlnum{1}\hlstd{)}
+
+        \hlcom{# The parameter to be changed is determined randomly}
+        \hlstd{param2change} \hlkwb{<-} \hlkwd{floor}\hlstd{(r}\hlopt{*}\hlstd{dim)} \hlopt{+} \hlnum{1}
+
+        \hlcom{# A randomly chosen solution is used in producing a mutant solution of the solution i}
+        \hlstd{neighbour} \hlkwb{<-} \hlkwd{floor}\hlstd{(r}\hlopt{*}\hlstd{pars}\hlopt{$}\hlstd{FoodNumber)} \hlopt{+} \hlnum{1}
+
+        \hlcom{#Randomly selected solution must be different from the solution i*/}
+        \hlkwa{while}\hlstd{(neighbour}\hlopt{==}\hlstd{i)}
+          \hlstd{neighbour} \hlkwb{<-} \hlkwd{floor}\hlstd{(}\hlkwd{runif}\hlstd{(}\hlnum{1}\hlstd{)}\hlopt{*}\hlstd{pars}\hlopt{$}\hlstd{FoodNumber)} \hlopt{+} \hlnum{1}
+
+        \hlstd{solution} \hlkwb{<<-} \hlstd{Foods[i,]}
+
+        \hlstd{r} \hlkwb{<-} \hlkwd{runif}\hlstd{(}\hlnum{1}\hlstd{)}
+
+        \hlkwa{if} \hlstd{(pars}\hlopt{$}\hlstd{optbin) solution[param2change]} \hlkwb{<<-} \hlstd{r} \hlopt{>} \hlnum{.5}
+        \hlkwa{else}
+        \hlstd{\{}
+          \hlstd{solution[param2change]} \hlkwb{<<-}
+            \hlstd{Foods[i,param2change]}\hlopt{+}
+            \hlstd{(Foods[i,param2change]}\hlopt{-}\hlstd{Foods[neighbour,param2change])}\hlopt{*}\hlstd{(r}\hlopt{-}\hlnum{0.5}\hlstd{)}\hlopt{*}\hlnum{2}
+
+          \hlcom{# if generated parameter value is out of boundaries, it is shifted onto the boundaries*/}
+          \hlkwa{if} \hlstd{(solution[param2change]}\hlopt{<}\hlstd{pars}\hlopt{$}\hlstd{lb[param2change])}
+            \hlstd{solution[param2change]} \hlkwb{<<-} \hlstd{pars}\hlopt{$}\hlstd{lb[param2change]}
+
+          \hlkwa{if} \hlstd{(solution[param2change]}\hlopt{>}\hlstd{pars}\hlopt{$}\hlstd{ub[param2change])}
+            \hlstd{solution[param2change]} \hlkwb{<<-} \hlstd{pars}\hlopt{$}\hlstd{ub[param2change]}
+
+        \hlstd{\}}
+
+        \hlstd{ObjValSol} \hlkwb{<<-} \hlkwd{goal}\hlstd{(solution)}
+        \hlstd{FitnessSol} \hlkwb{<<-} \hlkwd{evaluation}\hlstd{(ObjValSol)}
+
+        \hlcom{# a greedy selection is applied between the current solution i and its mutant*/}
+        \hlkwa{if} \hlstd{(FitnessSol}\hlopt{>}\hlstd{fitness[i])}
+        \hlstd{\{}
+          \hlcom{# If the mutant solution is better than the current solution i, replace the solution with the mutant and reset the trial counter of solution i*/}
+          \hlstd{trial[i]} \hlkwb{<<-} \hlnum{0}
+          \hlstd{Foods[i,]} \hlkwb{<<-} \hlstd{solution}
+
+          \hlstd{f[i]}\hlkwb{<<-}\hlstd{ObjValSol}
+          \hlstd{fitness[i]}\hlkwb{<<-}\hlstd{FitnessSol}
+        \hlstd{\}} \hlcom{#if the solution i can not be improved, increase its trial counter*/}
+        \hlkwa{else} \hlstd{trial[i]} \hlkwb{<<-} \hlstd{trial[i]}\hlopt{+}\hlnum{1}
+      \hlstd{\}}
+      \hlstd{i} \hlkwb{<-} \hlstd{i} \hlopt{+} \hlnum{1}
+      \hlkwa{if} \hlstd{(i}\hlopt{==}\hlstd{pars}\hlopt{$}\hlstd{FoodNumber) i} \hlkwb{<-} \hlnum{1}
+      \hlcom{# end of onlooker bee phase}
+    \hlstd{\}}
+    \hlkwd{return}\hlstd{(Foods)}
+  \hlstd{\}}
+
+  \hlcom{# determine the food sources whose trial counter exceeds the "limit" value.}
+  \hlcom{# In Basic ABC, only one scout is allowed to occur in each cycle*/}
+
+  \hlstd{SendScoutBees} \hlkwb{<-} \hlkwa{function}\hlstd{() \{}
+    \hlstd{maxtrialindex} \hlkwb{<-} \hlnum{1}
+    \hlkwa{for} \hlstd{(i} \hlkwa{in} \hlnum{1}\hlopt{:}\hlstd{pars}\hlopt{$}\hlstd{FoodNumber) \{}
+      \hlkwa{if} \hlstd{(trial[i]} \hlopt{>} \hlstd{trial[maxtrialindex]) maxtrialindex} \hlkwb{<-} \hlstd{i}
+    \hlstd{\}}
+
+    \hlkwa{if} \hlstd{(trial[maxtrialindex]} \hlopt{>=} \hlstd{pars}\hlopt{$}\hlstd{limit)} \hlkwd{init}\hlstd{(maxtrialindex)}
+  \hlstd{\}}
+
+
+ \hlstd{selection} \hlkwb{<-} \hlkwa{function}\hlstd{(}\hlkwc{history}\hlstd{,} \hlkwc{model}\hlstd{)\{}
+   \hlstd{sel} \hlkwb{<-} \hlkwd{SendOnlookerBees}\hlstd{()}
+   \hlkwd{return}\hlstd{(sel)}
+ \hlstd{\}}
+
+  \hlstd{initModel} \hlkwb{<-} \hlkwa{function}\hlstd{(}\hlkwc{history}\hlstd{)\{}
+    \hlkwd{MemorizeBestSource}\hlstd{()}
+    \hlkwd{SendEmployedBees}\hlstd{()}
+    \hlkwd{evaluateList}\hlstd{(}\hlkwa{NULL}\hlstd{,} \hlkwa{NULL}\hlstd{)}
+    \hlkwd{return}\hlstd{(GlobalParams)}
+  \hlstd{\}}
+
+
+  \hlstd{modelUpdate} \hlkwb{<-} \hlkwa{function}\hlstd{(}\hlkwc{selectedPoints}\hlstd{,} \hlkwc{oldModel}\hlstd{)\{}
+    \hlkwd{MemorizeBestSource}\hlstd{()}
+    \hlkwd{return}\hlstd{(GlobalParams)}
+  \hlstd{\}}
+
+  \hlstd{variation} \hlkwb{<-} \hlkwa{function}\hlstd{(}\hlkwc{selectedPoints}\hlstd{,} \hlkwc{newModel}\hlstd{)\{}
+    \hlkwd{SendScoutBees}\hlstd{()}
+    \hlkwd{SendEmployedBees}\hlstd{()}
+    \hlkwd{return}\hlstd{(Foods)}
+  \hlstd{\}}
+  \hlcom{#push a LIST of points into the history}
+  \hlstd{historyPush}\hlkwb{<-}\hlkwa{function}\hlstd{(}\hlkwc{oldHistory}\hlstd{,} \hlkwc{newPoints}\hlstd{)}
+  \hlstd{\{}
+    \hlcom{#    newHistory<-c(oldHistory,newPoints)}
+    \hlcom{#    return (newHistory)}
+    \hlkwd{return}\hlstd{(Foods)}
+  \hlstd{\}}
+  \hlcom{#read a LIST of points pushed recently into the history}
+  \hlstd{historyPop}\hlkwb{<-}\hlkwa{function}\hlstd{(}\hlkwc{history}\hlstd{,} \hlkwc{number}\hlstd{)}
+  \hlstd{\{}
+    \hlstd{stop}\hlkwb{=}\hlkwd{length}\hlstd{(history)}
+    \hlstd{start}\hlkwb{=}\hlkwd{max}\hlstd{(stop}\hlopt{-}\hlstd{number}\hlopt{+}\hlnum{1}\hlstd{,}\hlnum{1}\hlstd{)}
+    \hlkwd{return}\hlstd{(history[start}\hlopt{:}\hlstd{stop])}
+  \hlstd{\}}
+
+  \hlstd{aggregatedOperator}\hlkwb{<-}\hlkwa{function}\hlstd{(}\hlkwc{history}\hlstd{,} \hlkwc{oldModel}\hlstd{)}
+  \hlstd{\{}
+    \hlstd{selectedPoints}\hlkwb{<-}\hlkwd{selection}\hlstd{(history, oldModel)}
+    \hlstd{newModel}\hlkwb{<-}\hlkwd{modelUpdate}\hlstd{(selectedPoints, oldModel)}
+    \hlstd{newPoints}\hlkwb{<-}\hlkwd{variation}\hlstd{(selectedPoints, newModel)}
+    \hlkwd{return} \hlstd{(}\hlkwd{list}\hlstd{(}\hlkwc{newPoints}\hlstd{=newPoints,}\hlkwc{newModel}\hlstd{=newModel))}
+  \hlstd{\}}
+
+  \hlstd{p} \hlkwb{<-} \hlnum{0}
+  \hlstd{history} \hlkwb{<-} \hlkwd{initialize}\hlstd{(Foods)} \hlcom{#return initialized foods - points which bees will estimate}
+  \hlstd{model} \hlkwb{<-} \hlkwd{initModel}\hlstd{(history)}
+
+  \hlstd{iter} \hlkwb{<-} \hlnum{0}
+  \hlkwa{while} \hlstd{((iter} \hlkwb{<-} \hlstd{iter} \hlopt{+} \hlnum{1}\hlstd{)} \hlopt{<} \hlstd{pars}\hlopt{$}\hlstd{maxCycle} \hlopt{&&} \hlstd{p} \hlopt{<=} \hlstd{pars}\hlopt{$}\hlstd{critical)}
+  \hlstd{\{}
+    \hlstd{aa} \hlkwb{<-} \hlkwd{aggregatedOperator}\hlstd{(history, model)}
+    \hlstd{aa}\hlopt{$}\hlstd{newPoints} \hlkwb{<-} \hlkwd{evaluateList}\hlstd{(aa}\hlopt{$}\hlstd{newPoints, model)}
+    \hlstd{history} \hlkwb{<-} \hlkwd{historyPush}\hlstd{(history, aa}\hlopt{$}\hlstd{newPoints)}
+    \hlstd{model} \hlkwb{<-} \hlstd{aa}\hlopt{$}\hlstd{newModel}
+  \hlstd{\}}
+
+  \hlkwd{return}\hlstd{(}
+    \hlkwd{list}\hlstd{(}
+      \hlkwc{x}\hlstd{=GlobalParams,}
+      \hlkwc{y}\hlstd{=}\hlkwd{goal}\hlstd{(GlobalParams)}
+    \hlstd{)}
+  \hlstd{)}
+\hlstd{\}}
+\end{alltt}
+\end{kframe}
+\end{knitrout}
+
+The R session information (including the OS info, R version and all
+packages used):
+
+\begin{knitrout}
+\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlkwd{sessionInfo}\hlstd{()}
+\end{alltt}
+\begin{verbatim}
+## R version 3.2.2 (2015-08-14)
+## Platform: x86_64-w64-mingw32/x64 (64-bit)
+## Running under: Windows 8 x64 (build 9200)
+## 
+## locale:
+## [1] LC_COLLATE=English_United States.1252  LC_CTYPE=English_United States.1252   
+## [3] LC_MONETARY=English_United States.1252 LC_NUMERIC=C                          
+## [5] LC_TIME=English_United States.1252    
+## 
+## attached base packages:
+## [1] stats     graphics  grDevices utils     datasets  methods   base     
+## 
+## other attached packages:
+## [1] knitr_1.12.3 alhe_0.1    
+## 
+## loaded via a namespace (and not attached):
+## [1] magrittr_1.5  formatR_1.2.1 tools_3.2.2   stringi_1.0-1 highr_0.5.1   stringr_1.0.0
+## [7] evaluate_0.8
+\end{verbatim}
+\begin{alltt}
+\hlkwd{Sys.time}\hlstd{()}
+\end{alltt}
+\begin{verbatim}
+## [1] "2016-01-22 13:14:23 CET"
+\end{verbatim}
+\end{kframe}
+\end{knitrout}
+
+
+\end{document}

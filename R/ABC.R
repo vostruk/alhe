@@ -43,24 +43,21 @@ abc <- function(goal, dim, pars)
   pars$ub <- rep(pars$ub, dim)
   pars$lb[is.infinite(pars$lb)] <- -(.Machine$double.xmax*1e-10)
   pars$ub[is.infinite(pars$ub)] <- +(.Machine$double.xmax*1e-10)
-  # Initial params
+
+  # additional parameters - with global parameters algorithm works faster
   Foods       <- matrix(double(pars$FoodNumber*dim), nrow=pars$FoodNumber)
   f           <- double(pars$FoodNumber)  #point - history wartosc f-ji celu dla danego rozwiazania
   fitness     <- double(pars$FoodNumber)  #point - history quality of the point -
   trial       <- double(pars$FoodNumber)  #point - history
   prob        <- double(pars$FoodNumber)  #point - history
-  solution    <- double(dim)  #model
-  ObjValSol   <- double(1)
-  FitnessSol  <- double(1)
+  solution    <- double(dim)    #model
+  ObjValSol   <- double(1)      #model
+  FitnessSol  <- double(1)      #model
   neighbour   <- integer(1)
   param2change<- integer(1)
   GlobalMin   <- double(1)      #model
   GlobalParams<- double(dim)    #model
-  #GlobalMins  <- double(runtime)
   r           <- integer(1)
-
-  # Fun
- # fun <- function(par) goal(par, ...)
 
   # Fitness function - calculates quality
   evaluation <- function(f_wart)
@@ -68,7 +65,6 @@ abc <- function(goal, dim, pars)
     if (f_wart >= 0) return(1/(f_wart + 1))
     else return(1 + abs(f_wart))
   }
-  # evaluation(f[1])
 
   # The best food source is memorized
   MemorizeBestSource <- function()
@@ -87,9 +83,6 @@ abc <- function(goal, dim, pars)
     if (!change) p <<- p + 1
   }
 
-  # Variables are initialized in the range [pars$lb,pars$ub]. If each parameter has
-  # different range, use arrays pars$lb[j], pars$ub[j] instead of pars$lb and pars$ub
-  # Counters of food sources are also initialized in this function
 
   init <- function(index, firstinit=FALSE, ...) {
     if (pars$optbin) Foods[index,] <<- runif(dim) > .5
@@ -184,9 +177,7 @@ abc <- function(goal, dim, pars)
 
 
   # A food source is chosen with the probability which is proportioal to its quality*/
-  # Different schemes can be used to calculate the probability values*/
-  # For example prob(i)=fitness(i)/sum(fitness)*/
-  # or in a way used in the metot below prob(i)=a*fitness(i)/max(fitness)+b*/
+  # prob(i)=a*fitness(i)/max(fitness)+b*/
   # probability values are calculated by using fitness values and normalized by dividing maximum fitness value*/
   evaluateList <- function(points,evaluation) {
     maxfit <- fitness[1]
@@ -264,7 +255,6 @@ abc <- function(goal, dim, pars)
   }
 
   # determine the food sources whose trial counter exceeds the "limit" value.
-  # In Basic ABC, only one scout is allowed to occur in each cycle*/
 
   SendScoutBees <- function() {
     maxtrialindex <- 1
